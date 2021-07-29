@@ -1,7 +1,17 @@
 const boxes = document.querySelectorAll('.box');
+const playerX = document.getElementById('playerX');
+const playerO = document.getElementById('playerO');
 const dialogBox = document.getElementById('dialog-box');
 const txt = dialogBox.querySelector('h1');
-const reset = document.getElementById('reset-game');
+const resetBtn = document.getElementById('reset-game');
+const xScore = document.getElementById('x-score');
+const oScore = document.getElementById('o-score');
+const playBtn = document.getElementById('play');
+const board = document.getElementById('board');
+
+var xScoreCount = 0;
+var oScoreCount = 0
+
 var flag = 1;
 var currentClass;
 const winningComb = [
@@ -17,28 +27,49 @@ const winningComb = [
 
 
 
-const handleClick = (e) =>{
+const addMark = () =>{
+    for(const box of boxes){
+        box.addEventListener('click', handleClick, {once : true});
+    }
+}
 
+const handleClick = (e) =>{
     box = e.target;
     if(flag == 1){
-        box.innerHTML = 'X';
+        box.innerText = 'X';
         flag = 0;
+        playerX.classList.remove('player-turn');
+        playerO.classList.add('player-turn')
         box.classList.add('X');
         currentClass = 'X';
     }
     else{
-        box.innerHTML = 'O';
+        box.innerText = 'O';
         flag = 1;
+        playerX.classList.add('player-turn');
+        playerO.classList.remove('player-turn')
         box.classList.add('O');
         currentClass = 'O';
     }
     if(checkWinner(currentClass)){
         endGame(true);
+        if(currentClass == 'X'){
+            xScoreCount =  xScore.innerHTML;
+            xScoreCount++;
+            xScore.innerHTML = xScoreCount;
+         }
+         else{
+             oScoreCount = oScore.innerHTML;
+             oScoreCount++;
+             oScore.innerHTML = oScoreCount
+         }
     } 
     else if(isDraw()){
         endGame(false);
     } 
 }
+
+
 
 const checkWinner = (currentClass) =>{
    return  winningComb.some(combination => {
@@ -56,32 +87,51 @@ const isDraw = () =>{
 }
 
 
-const addMark = () =>{
-    for(const box of boxes){
-        box.addEventListener('click', handleClick, {once : true});
-    }
-}
+
 
 
 const resetGame = () =>{
-    reset.addEventListener('click', function(){
+    resetBtn.addEventListener('click', function(){
         location.reload()
     })
+}
+const playAgain = () =>{
+    playBtn.addEventListener('click', function(){
+        dialogBox.classList.remove('display');
+        for(const box of boxes){
+            if(box.classList.contains('X') || box.classList.contains('O')){
+                box.innerText = '';
+                box.classList.remove('O');
+                box.classList.remove('X');
+                flag = 1;
+                playerX.classList.add('player-turn');
+                playerO.classList.remove('player-turn')
+            }
+        }
+    })
+}
+
+const score = () =>{
+    xScore.innerText = xScoreCount;
+    oScore.innerText = oScoreCount;
 }
 
 const endGame = (winCheck) =>{
     addMark();
+    score();
+    resetGame();
+
     if(winCheck == false){
-        txt.innerText = 'Cat Game!';
-        resetGame();
-        dialogBox.classList.add('display')
+        txt.innerText = 'Draw!';
+        dialogBox.classList.add('display');
+        playAgain();
     }
     else if(winCheck == true){
-        txt.innerText = currentClass + ' has won!';
-        resetGame();
+       txt.innerText = currentClass + ' has won!';
         dialogBox.classList.add('display')
+        playAgain();
+       
     }
-   
     
 }
 endGame()
